@@ -13,7 +13,7 @@ import database
 
 
 class Table(QTableWidget):
-    def __init__(self, row: int, col: int, parent=None):
+    def __init__(self, row=1, col=5, parent=None):
         super().__init__(parent)
         self.setColumnCount(col)
         self.setRowCount(row)
@@ -21,21 +21,31 @@ class Table(QTableWidget):
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 150)
         self.setColumnWidth(3, 200)
+        self.setColumnWidth(4, 0)
         # Fill table title
         self.setHorizontalHeaderLabels([
             "First Name", "Last Name", "Phone", "Address"
         ])
 
-    def update_data(self, data: list[dict]):
+    def update_data(self, data=None):
         self.setRowCount(0)
         row = 0
-        for contact in data:
-            self.insertRow(row)
-            self.setItem(row, 0, QTableWidgetItem(contact["First Name"]))
-            self.setItem(row, 1, QTableWidgetItem(contact["Last Name"]))
-            self.setItem(row, 2, QTableWidgetItem(contact["Number"]))
-            self.setItem(row, 3, QTableWidgetItem(contact["Address"]))
-            row += 1
+        if data is not None:
+            for contact in data:
+                self.add_row(row, contact)
+                row += 1
+        else:
+            for contact in database.get_contacts():
+                self.add_row(row, contact)
+                row += 1
+
+    def add_row(self, row: int, contact: dict) -> None:
+        self.insertRow(row)
+        self.setItem(row, 0, QTableWidgetItem(contact["First Name"]))
+        self.setItem(row, 1, QTableWidgetItem(contact["Last Name"]))
+        self.setItem(row, 2, QTableWidgetItem(contact["Number"]))
+        self.setItem(row, 3, QTableWidgetItem(contact["Address"]))
+        self.setItem(row, 4, QTableWidgetItem(contact["Id"]))
 
 
 class MainWindow(QMainWindow):
@@ -53,13 +63,11 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 815, 400)
 
         # Create Table
-        row = 1
-        col = 4
-        self.table = Table(row=row, col=col, parent=self)
+        self.table = Table(parent=self)
         self.setCentralWidget(self.table)
 
         # Add data to table
-        self.table.update_data(database.get_contacts())
+        self.table.update_data()
 
         # Add dock to the main window
         dock = QDockWidget("New Contact")
@@ -138,6 +146,8 @@ class MainWindow(QMainWindow):
             QMessageBox.StandardButton.No
         )
         if button == QMessageBox.StandardButton.Yes:
+            contact_id = self.table.item(current_row, 4).text()
+            database.delete_contact(contact_id)
             self.table.removeRow(current_row)
 
     def valid(self):
@@ -201,29 +211,13 @@ class MainWindow(QMainWindow):
         if not self.valid():
             return
 
-        row = self.table.rowCount()
-        self.table.insertRow(row)
-        self.table.setItem(
-            row,
-            0,
-            QTableWidgetItem(self.first_name.text().strip())
-            )
-        self.table.setItem(
-            row,
-            1,
-            QTableWidgetItem(self.last_name.text())
+        database.add_contact(
+            self.first_name.text().strip(),
+            self.last_name.text().strip(),
+            self.number.text().strip(),
+            self.address.text().strip(),
         )
-        self.table.setItem(
-            row,
-            2,
-            QTableWidgetItem(self.number.text())
-        )
-        self.table.setItem(
-            row,
-            3,
-            QTableWidgetItem(self.address.text())
-        )
-
+        self.table.update_data()
         self.reset()
 
 

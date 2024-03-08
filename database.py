@@ -58,14 +58,52 @@ def initialize_database():
 
 
 def get_contacts():
-    contacts = Contact.select()
-    for contact in contacts:
-        yield {
-            "First Name": contact.first_name,
-            "Last Name": contact.last_name,
-            "Number": contact.number,
-            "Address": contact.address,
-        }
+    try:
+        contacts = Contact.select()
+        for contact in contacts:
+            yield {
+                "First Name": contact.first_name,
+                "Last Name": contact.last_name,
+                "Number": contact.number,
+                "Address": contact.address,
+                "Id": str(contact.get_id()),
+            }
+    except Exception as e:
+        print("Error", e)
+    finally:
+        # closing database connection.
+        if database_manager.db:
+            database_manager.db.close()
+            print("Database connection is closed")
+
+
+def add_contact(first_name, last_name, number, address=None):
+    try:
+        Contact.create(
+            first_name=first_name,
+            last_name=last_name,
+            number=number,
+            address=address,
+        )
+    except Exception as e:
+        print("Error", e)
+    finally:
+        # closing database connection.
+        if database_manager.db:
+            database_manager.db.close()
+            print("Database connection is closed")
+
+
+def delete_contact(id_row: int):
+    try:
+        Contact.delete_by_id(id_row)
+    except Exception as e:
+        print("Error", e)
+    finally:
+        # closing database connection.
+        if database_manager.db:
+            database_manager.db.close()
+            print("Database connection is closed")
 
 
 # initialize database
