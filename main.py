@@ -11,6 +11,32 @@ from PyQt6.QtGui import QIcon, QAction
 import sys
 
 
+class Table(QTableWidget):
+    def __init__(self, row: int, col: int, parent=None):
+        super().__init__(parent)
+        self.setColumnCount(col)
+        self.setRowCount(row)
+        self.setColumnWidth(0, 100)
+        self.setColumnWidth(1, 100)
+        self.setColumnWidth(2, 150)
+        self.setColumnWidth(3, 200)
+        # Fill table title
+        self.setHorizontalHeaderLabels([
+            "First Name", "Last Name", "Phone", "Address"
+        ])
+
+    def update_data(self, data: list[dict]):
+        self.setRowCount(0)
+        row = 0
+        for contact in data:
+            self.insertRow(row)
+            self.setItem(row, 0, QTableWidgetItem(contact["First Name"]))
+            self.setItem(row, 1, QTableWidgetItem(contact["Last Name"]))
+            self.setItem(row, 2, QTableWidgetItem(contact["Number"]))
+            self.setItem(row, 3, QTableWidgetItem(contact["Address"]))
+            row += 1
+
+
 class MainWindow(QMainWindow):
     """Main window.
 
@@ -23,7 +49,7 @@ class MainWindow(QMainWindow):
         # Set some attribute for main window
         self.setWindowTitle("Phonebook")
         self.setWindowIcon(QIcon('/assets/phone-book.png'))
-        self.setGeometry(100, 100, 765, 400)
+        self.setGeometry(100, 100, 815, 400)
 
         employees = [
             {'First Name': 'John', 'Last Name': 'Doe', 'Age': 25},
@@ -52,24 +78,13 @@ class MainWindow(QMainWindow):
         ]
 
         # Create Table
-        self.table = QTableWidget(self)
+        row = len(contact_data)
+        col = 4
+        self.table = Table(row=row, col=col, parent=self)
         self.setCentralWidget(self.table)
-        self.table.setColumnCount(4)
-        self.table.setColumnWidth(0, 100)
-        self.table.setColumnWidth(1, 100)
-        self.table.setColumnWidth(2, 100)
-        self.table.setColumnWidth(3, 200)
 
-        # Fill table
-        self.table.setHorizontalHeaderLabels(contact_data[0].keys())
-        self.table.setRowCount(len(contact_data))
-        row = 0
-        for contact in contact_data:
-            self.table.setItem(row, 0, QTableWidgetItem(contact["First Name"]))
-            self.table.setItem(row, 1, QTableWidgetItem(contact["Last Name"]))
-            self.table.setItem(row, 2, QTableWidgetItem(contact["Number"]))
-            self.table.setItem(row, 3, QTableWidgetItem(contact["Address"]))
-            row += 1
+        # Add data to table
+        self.table.update_data(contact_data)
 
         # Add dock to the main window
         dock = QDockWidget("New Contact")
@@ -102,6 +117,9 @@ class MainWindow(QMainWindow):
         btn_add.clicked.connect(self.add_contact)
         layout.addRow(btn_add)
 
+        # Add form to the dock
+        dock.setWidget(form)
+
         # Create toolbar and add it to the main window
         toolbar = QToolBar("main toolbar")
         toolbar.setIconSize(QSize(24, 24))
@@ -117,8 +135,6 @@ class MainWindow(QMainWindow):
         # add edit button to the toolbar
         pass
 
-        # Add form to the dock
-        dock.setWidget(form)
 
     def delete(self):
         """Delete Contact.
