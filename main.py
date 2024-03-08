@@ -51,11 +51,6 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon('/assets/phone-book.png'))
         self.setGeometry(100, 100, 815, 400)
 
-        employees = [
-            {'First Name': 'John', 'Last Name': 'Doe', 'Age': 25},
-            {'First Name': 'Jane', 'Last Name': 'Doe', 'Age': 22},
-            {'First Name': 'Alice', 'Last Name': 'Doe', 'Age': 22},
-        ]
         contact_data = [
             {
                 "First Name": "mobin",
@@ -134,7 +129,6 @@ class MainWindow(QMainWindow):
 
         # add edit button to the toolbar
         pass
-
 
     def delete(self):
         """Delete Contact.
@@ -220,6 +214,7 @@ class MainWindow(QMainWindow):
         self.first_name.clear()
         self.last_name.clear()
         self.number.clear()
+        self.address.clear()
 
     def add_contact(self):
         """Add new contact."""
@@ -252,8 +247,13 @@ class MainWindow(QMainWindow):
         self.reset()
 
 
-if __name__ == '__main__':
+def main():
+    """Main function."""
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+
+if __name__ == '__main__':
+    main()
