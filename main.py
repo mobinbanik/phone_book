@@ -3,8 +3,7 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QTableWidget,
     QTableWidgetItem, QDockWidget, QFormLayout,
     QLineEdit, QWidget, QPushButton,
-    QSpinBox, QMessageBox, QToolBar,
-    QMessageBox, QLabel,
+    QToolBar, QMessageBox, QLabel,
 )
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QAction
@@ -104,19 +103,34 @@ class MainWindow(QMainWindow):
         dock.setWidget(form)
 
         # Create toolbar and add it to the main window
-        toolbar = QToolBar("main toolbar")
-        toolbar.setIconSize(QSize(24, 24))
-        self.addToolBar(toolbar)
+        self.toolbar = QToolBar("main toolbar")
+        self.toolbar.setIconSize(QSize(24, 24))
+        self.addToolBar(self.toolbar)
 
-        # add delete button to the toolbar
+        # Add delete button to the toolbar
         self.delete_action = QAction(QIcon("./assets/delete.png"), "&Delete", self)
         self.delete_action.triggered.connect(self.delete)
-        toolbar.addAction(self.delete_action)
+        self.toolbar.addAction(self.delete_action)
+        # Add delete label to the toolbar
         delete_label = QLabel("Delete Contact")
-        toolbar.addWidget(delete_label)
-
-        # add edit button to the toolbar
+        self.toolbar.addWidget(delete_label)
+        # Add separator
+        self.toolbar.addSeparator()
+        # Add search bar to the toolbar
+        self.search_line = QLineEdit(self.toolbar)
+        self.search_line.textChanged.connect(self.search)
+        self.search_line.setFixedWidth(150)
+        # Add search label to the toolbar
+        self.search_label = QLabel("Search")
+        self.toolbar.addWidget(self.search_line)
+        self.toolbar.addWidget(self.search_label)
+        # Add separator
+        self.toolbar.addSeparator()
+        # Add edit button to the toolbar
         pass
+
+    def search(self, text):
+        self.table.update_data(database.search_contact(text))
 
     def delete(self):
         """Delete Contact.

@@ -1,7 +1,6 @@
 """Q.
 """
 import peewee
-import random
 from database_manager import DatabaseManager
 import local_settings
 
@@ -97,6 +96,31 @@ def add_contact(first_name, last_name, number, address=None):
 def delete_contact(id_row: int):
     try:
         Contact.delete_by_id(id_row)
+    except Exception as e:
+        print("Error", e)
+    finally:
+        # closing database connection.
+        if database_manager.db:
+            database_manager.db.close()
+            print("Database connection is closed")
+
+
+def search_contact(search_term: str):
+    try:
+        retrieved_data = Contact.select().where(
+            (Contact.first_name.contains(search_term))
+            | (Contact.last_name.contains(search_term))
+            | (Contact.number.contains(search_term))
+            | (Contact.address.contains(search_term))
+        )
+        for contact in retrieved_data:
+            yield {
+                "First Name": contact.first_name,
+                "Last Name": contact.last_name,
+                "Number": contact.number,
+                "Address": contact.address,
+                "Id": str(contact.get_id()),
+            }
     except Exception as e:
         print("Error", e)
     finally:
