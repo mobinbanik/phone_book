@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QAction
 import sys
+import database
 
 
 class Table(QTableWidget):
@@ -51,35 +52,14 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon('/assets/phone-book.png'))
         self.setGeometry(100, 100, 815, 400)
 
-        contact_data = [
-            {
-                "First Name": "mobin",
-                "Last Name": "banikarim",
-                "Number": "09123456789",
-                "Address": "Tehran, sina, p3"
-            },
-            {
-                "First Name": "javad",
-                "Last Name": "momtazan",
-                "Number": "09123456789",
-                "Address": "Tehran, vahid, p7"
-            },
-            {
-                "First Name": "ali",
-                "Last Name": "jahed",
-                "Number": "09123456789",
-                "Address": "Tehran, mehr, p2"
-            },
-        ]
-
         # Create Table
-        row = len(contact_data)
+        row = 1
         col = 4
         self.table = Table(row=row, col=col, parent=self)
         self.setCentralWidget(self.table)
 
         # Add data to table
-        self.table.update_data(contact_data)
+        self.table.update_data(database.get_contacts())
 
         # Add dock to the main window
         dock = QDockWidget("New Contact")
