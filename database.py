@@ -1,9 +1,9 @@
-"""Q.
-"""
+"""Database modules."""
 import peewee
 from database_manager import DatabaseManager
 import local_settings
 
+# Database instance
 database_manager = DatabaseManager(
     database_name=local_settings.DATABASE['name'],
     user=local_settings.DATABASE['user'],
@@ -14,6 +14,7 @@ database_manager = DatabaseManager(
 
 
 class Contact(peewee.Model):
+    """Contact model."""
     first_name = peewee.CharField(
         max_length=255,
         null=False,
@@ -32,11 +33,26 @@ class Contact(peewee.Model):
     address = peewee.TextField(null=True, verbose_name='Address')
 
     class Meta:
+        """Meta class."""
         database = database_manager.db
 
 
-def initialize_database():
+def initialize_database() -> None:
+    """Initialize database.
+
+    Create tables if they don't exist and fill with initial values.
+    if you don't want to initialize the database:
+    set sample_settings.first_init to False.
+    """
     try:
+        # Warning
+        print("start initializing database")
+        # # you can uncomment these statements For more caution.
+        # print("do you want to continue? [y/n]")
+        # if input().lower() not in ['y', 'yes']:
+        #     exit()
+
+        # Create table
         database_manager.create_tables(models=[Contact])
         with open("init_data.txt", "r") as init:
             for line in init:
@@ -49,14 +65,20 @@ def initialize_database():
                 )
     except Exception as e:
         print("Error", e)
+    else:
+        print("Database initialized")
     finally:
-        # closing database connection.
+        # Closing database connection.
         if database_manager.db:
             database_manager.db.close()
             print("Database connection is closed")
 
 
 def get_contacts():
+    """Get all contacts.
+
+    :return: list[dict] of all contacts
+    """
     try:
         contacts = Contact.select()
         for contact in contacts:
@@ -76,7 +98,14 @@ def get_contacts():
             print("Database connection is closed")
 
 
-def add_contact(first_name, last_name, number, address=None):
+def add_contact(first_name, last_name, number, address=None) -> None:
+    """Add contact to database.
+
+    :param first_name: first name
+    :param last_name: last name
+    :param number: contact number
+    :param address: contact address
+    """
     try:
         Contact.create(
             first_name=first_name,
@@ -106,6 +135,11 @@ def delete_contact(id_row: int):
 
 
 def search_contact(search_term: str):
+    """Search contact in database.
+
+    :param search_term: search term
+    :return: list[dict] of retrieved contacts
+    """
     try:
         retrieved_data = Contact.select().where(
             (Contact.first_name.contains(search_term))
