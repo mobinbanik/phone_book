@@ -123,6 +123,10 @@ def add_contact(first_name, last_name, number, address=None) -> None:
 
 
 def delete_contact(id_row: int):
+    """Delete contact by id.
+
+    :param id_row: contact id
+    """
     try:
         Contact.delete_by_id(id_row)
     except Exception as e:
